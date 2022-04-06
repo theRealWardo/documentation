@@ -20,11 +20,11 @@ module.exports = {
       title: '',
       hideOnScroll: true,
       logo: {
-        alt: 'Vectorized Logo',
-        src: 'img/RedpandaLogo.svg',
-        srcDark: 'img/RedpandaLogoInverted.svg',
-        width: '144',
-        height: '24',
+        alt: 'Redpanda Logo',
+        src: 'img/redpanda-docs-logo.svg',
+        srcDark: 'img/redpanda-docs-inverted.svg',
+        width: '200',
+        height: '40',
         href: 'https://redpanda.com'
       },
       items: [
@@ -48,8 +48,8 @@ module.exports = {
       style: 'dark',
       logo: {
         alt: 'Redpanda Logo',
-        src: 'img/RedpandaLogo.svg',
-        srcDark: 'img/RedpandaLogoInverted.svg',
+        src: 'img/redpanda-docs-logo.svg',
+        srcDark: 'img/redpanda-docs-inverted.svg',
         width: '144',
         height: '24',
         href: 'https://redpanda.com'
