@@ -28,20 +28,9 @@ module.exports = {
         href: 'https://redpanda.com'
       },
       items: [
-        // { type: 'docsVersionDropdown',position: 'right'},
-        // { type: 'localeDropdown',position: 'right'},
-        { href: 'https://redpanda.com/redpanda', label: 'Platform', position: 'right', target: '_self' },
-        { href: 'https://redpanda.com/cloud', label: 'Cloud', position: 'right', target: '_self' },
-        { href: 'https://redpanda.com/team', label: 'Team', position: 'right', target: '_self' },
-        { href: 'https://redpanda.com/careers', label: 'Careers', position: 'right', target: '_self' },
-        { href: 'https://redpanda.com/blog', label: 'Blog', position: 'right', target: '_self' },
-        { 
-          href: 'https://join.slack.com/t/vectorizedcommunity/shared_invite/zt-ng2ze1uv-l5VMWSGQHB9gp47~kNnYGA', 
-          position: 'right',
-          label: 'Slack',
-          className: 'header-icon header-icon-slack',
-          'aria-label': 'Slack',
-        },
+        { href: 'https://redpanda.com/redpanda/', label: 'Redpanda', position: 'right', target: '_self' },
+        { href: 'https://redpanda.com/cloud/', label: 'Try Redpanda today', position: 'right', target: '_self' },
+        { href: 'https://redpanda.com/contact/', label: 'Contact Us', position: 'right', target: '_self' },
       ],
     },
     footer: {
