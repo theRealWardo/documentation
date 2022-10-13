@@ -10,6 +10,9 @@ title: Tiered Storage
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 :::info
 This feature requires an [Enterprise license](../../introduction/licenses). To upgrade, contact [Redpanda sales](https://redpanda.com/try-redpanda?section=enterprise-cloud).
 :::
@@ -277,6 +280,40 @@ Use the following cluster-level properties to set the maximum cache size and cac
 | ----------- | ----------- |
 | `cloud_storage_cache_size` | Maximum size of the disk cache that is used by Tiered Storage. Default is 20 GiB. |
 | `cloud_storage_cache_check_interval` | The time, in milliseconds, between cache checks. The size of the cache can grow quickly, so it’s important to have a small interval between checks, but if the checks are too frequent, they consume a lot of resources. Default is 30000 ms. |
+
+## Retention
+
+Retention limits on cloud storage help control costs. You can purge topic data after it reaches a specified age or size, or purge data from local disks when they become full.
+
+By default, on topic creation Redpanda enforces a one year retention for contracted FMC customers.
+Pay-as-you go customers pay for whatever they store.
+
+The `retention.ms` and `retention.bytes` properties control the total retention of data. For example, if `retention.bytes` is exceeded by data in S3, the data in S3 is trimmed.
+
+When a topic has cloud storage enabled, data expires from the cloud storage tier following `retention.ms` or
+`retention.bytes`. A topic should not have ‘guaranteed’ local storage by default. The intent expressed by standard settings should be applied only to the cloud storage, as it is presumed the primary tier when a topic is designated a remote read+write topic.   
+
+However, you can specify hints on local storage when it's critically important to maintain low latency for a certain trailing window of data in that topic, regardless of the access patterns (that drive the Shadow Indexing cache’s attempts to read ahead and offer predictable low latency). And, we should set sensible defaults for this ‘hot’ local tier of recent data that keep the probability of achieving low latency very high (it is generally critical to maintain recent data with low latency access). 
+
+The new `redpanda.retention.local` properties control the local retention of data. Default `redpanda.retention.local.ms` defaults to 24 hours.
+
+The following optional overrides for local storage:	
+	
+Partition-Level
+- retention.local-target.hours
+- retention.local-target.gb
+
+Topic-level:
+- redpanda.topic.retention.local-target.hours
+- redpanda.topic.retention.local-target.gb
+
+The default value for `redpanda.topic.retention.local-target.hours` is 24 (1 day). When set, while balancing the demands of keeping recently-used data in local cache, the system targets to maintain this age of data in local storage. This allows us to purge data based on actual available local volume space, without forcing disk full situations when there is data skew.
+
+These settings evict data only when it would not contradict an explicit setting at the partition level (partition-level settings take priority). 
+
+To ensure data eventually gets truncated after a reasonable period, the default value of `redpanda.topic.retention.hours` should correspond to 7 days, though it may be set to other values without our cloud products.
+
+See [Configure message retention](../../deployment/disk-utilization/#configure-message-retention).
 
 ## Remote recovery 
 
