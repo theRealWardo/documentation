@@ -42,7 +42,7 @@ Tiered Storage is supported for Amazon S3 and Google Cloud Storage.
 To create a cloud storage bucket and configure Redpanda: 
 
 1. Specify the expiration rules for the files that are based on the `rp-type` file tags. 
-2. Use the IAM service to create a user who can access S3.
+2. Use [IAM roles](../../security/iam-roles) to create a user who can access S3.
 3. Grant the user permission to read and create objects in cloud storage.
 4. Copy the access key and secret key for the `cloud_storage_access_key` and `cloud_storage_secret_key` cluster properties.
 5. Edit the the following required properties with the `rpk cluster config edit` command:
@@ -55,7 +55,7 @@ cloud_storage_region: eu-north-1
 cloud_storage_bucket: pandabucket
 ```
 
-For additional properties, see [Configuration properties](../tiered-storage#configuration-properties). 
+For additional properties, see [Tiered Storage configuration properties](../tiered-storage#tiered-storage-configuration-properties). 
 
   </TabItem>
       <TabItem value="GCS" label="Google Cloud Storage" default>
@@ -86,7 +86,7 @@ For additional properties, see [Configuration properties](../tiered-storage#conf
 ### Enable Tiered Storage for a cluster
 
 :::note
-You can enable Tiered Storage for a cluster or for a topic. Topic-level tags override cluster-level settings. For example, if you have Tiered Storage enabled on the cluster and you create a topic with Tiered Storage turned off, it is also turned off for that topic.
+You can enable Tiered Storage for a cluster or a topic. Topic-level tags override cluster-level settings. For example, if you have Tiered Storage enabled on the cluster and you create a topic with Tiered Storage turned off, it is also turned off for that topic.
 :::
 
 To enable Tiered Storage on a cluster, set the following cluster-level properties with the `rpk cluster config edit` command:
@@ -95,7 +95,7 @@ To enable Tiered Storage on a cluster, set the following cluster-level propertie
 | ----------- | ----------- |
 | `cloud_storage_enable_remote_write` | Enables data upload from Redpanda to cloud storage. Set to `true`.  |
 | `cloud_storage_enable_remote_read` | Enables Redpanda to fetch data from cloud storage. Set to `true`.  |
-| `cloud_storage_enabled` | Global flag that enables Tiered Storage. Set to `true`. <br/><br/>Note that this property must be set to `true` to enable Tiered Storage at the cluster level or the topic level. Default is `false`. |
+| `cloud_storage_enabled` | Global flag that enables Tiered Storage. Set to `true`. <br/><br/>This must be set to `true` to enable Tiered Storage at the cluster level or the topic level. Default is `false`. |
 
 When you enable Tiered Storage on a cluster, it becomes enabled for already-existing topics.
 
@@ -157,70 +157,35 @@ rpk topic alter-config <topic_name> --set redpanda.remote.read=true --set redpan
 
 ### Set retention limits
 
-Data removal from the cloud (with retention limits and compaction).
-Redpanda prevents compaction from processing any segments below `max_collectable_offset`. If archival is enabled for the partition, this means compaction can no longer prevent segment upload. 
+To maximize cloud storage, Redpanda supports retention limits and compaction. Set retention limits to purge topic data after it reaches a specified age or size, or to purge data from local disks when they become full.
 
-1. Redpanda uploads non-compacted segments and propagates `last_uploaded_offset`.
-2. Replace non-compacted segments by re-uploading compacted data. It uses its own offset variable `last_uploded_compacted_offset`. This replaces segments before they're deleted locally. 
-3. During retention, before deleting data, check if data can be shrinked by re-uploading compacted segments. If so, start re-upload segments. 
+- Total retention: This is the data in a partition that is retained and available to read by the client. It's the combination of the data in cloud storage plus the data in local storage, minus any overlap. Native Kafka retention controls apply to cloud storage. Cloud data is deleted when it expires or when topics are deleted. 
+  
+  With Tiered Storage enabled, data expires from cloud storage following `retention.ms` or
+`retention.bytes`. For example, if `retention.bytes` is set to 10GiB, then every partition in the topic has a limit of 10GiB storage in the cloud. When `retention.bytes` is exceeded by data in S3, the data in S3 is trimmed. For details about `retention.ms` and `retention.bytes`, see [Configure message retention](../../deployment/disk-utilization/#configure-message-retention).
 
-Redpanda checks the size of all segments available for fetching after every upload. If the size exceeds the limit, it checks if it could re-upload compacted segments.
+- Local retention: This is the data retained on local storage in the Redpanda data directory. It does not include data in the Tiered Storage cache. Data in local storage may also be in cloud storage, but it isn't trimmed from local disk until the local retention limit is reached. 
+  
+  With Tiered Storage enabled, data expires from local storage following `redpanda.local-target.ms` or `redpanda.local-target.bytes`. These are topic-level properties. If `redpanda.local-target.bytes` is set to 10GiB, the partition has 10GiB/number_of_partitions. (These are equivalent to `retention.ms` and `retention.bytes` without Tiered Storage.) When set, Redpanda keeps recently-used and sequential (next segment) data in local cache and targets to maintain this age of data in local storage. It purges data based on actual available local volume space, without forcing disk full situations when there is data skew. 
+  
+  A topic does not have guaranteed local storage. You can specify hints to stash a range of data in local storage. 
 
-Set retention limits to purge topic data after it reaches a specified age or size, or to purge data from local disks when they become full.
+On topic creation with Tiered Storage enabled:
+- If `retention.ms` or `retention.bytes` is set, it initializes the `remote_retention_` properties in `topic_properties`.
+- If `redpanda.local-target.ms` or `redpanda.local-target.bytes` is set, it is normalized and used to initialize the retention fields in `topic_properties`. Otherwise, Redpanda uses the default values for local retention parameters.
+- If properties are not specified, Redpanda uses the default values (infinite retention). 
 
-Native Kafka retention controls apply to cloud storage. Cloud data is deleted when it expires or when topics are deleted. Redpanda caches actively used and sequential (next segment) data.
+After topic configuration, if Tiered Storage was disabled and must be enabled, or was enabled and must be disabled, Redpanda uses the local retention properties from the `topic_properties`.
 
-When a topic has cloud storage enabled, data expires from cloud storage following `retention.ms` or
-`retention.bytes`. These properties control the total retention of data. For example, when `retention.bytes` is exceeded by data in S3, the data in S3 is trimmed.
+:::note
+Existing topics have historical settings preserved on upgrade.
+:::
 
-For details about `retention.ms` and `retention.bytes`, see [Configure message retention](../../deployment/disk-utilization/#configure-message-retention).
+#### Compacted topics in Tiered Storage.
 
-two sets of parameters:
-- Kafka style `retention.ms` and `retention.bytes`
-  With Tiered Storage enabled, they set cloud retention limits per-partition, so if `retention.bytes` is set to 10GiB, then every partition in the topic should have 10GiB storage limit in the cloud.
-- New redpanda configs `redpanda.local-target.ms` and `redpanda.local-target.bytes` for local data. These configs work per topic, so if size-based retention parameter is set to 10GiB, the value that the partition will have is 10GiB/number_of_partitions.
-  The "local-target" parameters are equivalent to `retention.ms` and `retention.bytes` without Tiered Storage.
+Redpanda checks the size of all segments available for fetching after every upload. If the size exceeds the limit, it tries to re-upload compacted segments. During retention, before deleting data, if data can be shrinked, Redpanda re-uploads compacted segments. 
 
-Topic creation
-
-If Tiered Storage is enabled (cloud_storage_enabled=true, cloud_storage_remote_write=true, and cloud_storage_remote_read=true) or for the created topic (cloud_storage_enabled=true, redpanda.remote.write=true, and redpanda.remote.read=true), then:
-- If `retention.ms` or `retention.bytes` is set, they initialize the remote_retention_ parameters in topic_properties.
-- If `redpanda.local-target.ms` or `redpanda.local-target.bytes` are set, they are normalized and used to initialize the retention fields in topic_properties. Otherwise, use the default values for local retention parameters.
-- If properties are not specified, use default values (infinite retention).
-
-summary
-- Total retention: The client-visible extent of data in a partition: i.e., what is retained and available to read by the client. For tiered storage topics, this is the combination of what’s in S3 and what’s in local storage, minus any overlap. For non-tiered-storage topics, this is simply the data on local disk.
-
-- Local retention: The data retained on local storage in the Redpanda data directory. This does not include data in the tiered storage cache. Data in local storage may also be stored in S3, but will not be trimmed from local disk until the local retention limit is reached.
-
-By default, a topic does not have guaranteed local storage. Settings are applied only to the cloud storage, because it is presumed to be the primary tier when a topic is designated a remote read or remote write topic. You can specify hints to stash a range of data in local storage. This is helpful when it's important to maintain low latency for a certain trailing window of data in that topic. 
-
-The following properties control local data retention. Partition-level settings take priority. These settings evict data only when it would not contradict an explicit setting at the partition level. 
-	
-Partition-Level:
-- `retention.local-target.hours`
-- `retention.local-target.gb`
-
-Topic-level:
-- `redpanda.topic.retention.local-target.hours`
-- `redpanda.topic.retention.local-target.gb`
-
-The default value for `redpanda.topic.retention.local-target.hours` is 24 hours (one day). When set, the system keeps recently-used data in local cache and targets to maintain this age of data in local storage. It purges data based on actual available local volume space, without forcing disk full situations when there is data skew.
-
-To ensure data eventually gets truncated after a reasonable period, the default value of `redpanda.topic.retention.hours` is seven days, but it can be set to other values without our cloud products.
-
-**_confirm why this isn't listed under topic-level properties_**
-
-By default, on topic creation, Redpanda enforces a one year retention for contracted FMC customers.
-Pay-as-you go customers pay for whatever they store.
-
-**_Link to separate section about upgrade. Existing topics have historical settings preserved on upgrade._**
-
-Replace non-compacted segments with compacted ones to save space and minimize time needed to consume the entire topic. 
-Replace small non-compacted segments with larger ones. 
-1. Minimize replication
-2. Minimize orphaned log segments in the cloud
-
+Replacing non-compacted segments with compacted segments saves space and minimizes the time needed to consume the entire topic. Redpanda prevents compaction from processing any segments below `max_collectable_offset`. 
 
 ## Remote write
 
@@ -361,7 +326,7 @@ Redpanda uses the following properties to configure transport. Edit them with th
 | `cloud_storage_segment_max_upload_interval_sec` | Sets the number of seconds for idle timeout. If this property is empty, Redpanda uploads metadata to the cloud storage, but the segment is not uploaded until it reaches the `segment.bytes` size. By default, the property is empty. |
 | `cloud_storage_trust_file` | The public certificate used to validate the TLS connection to cloud storage. If this is empty, Redpanda uses your operating system's CA cert pool. |
 
-## Configuration properties
+## Tiered Storage configuration properties
 
 The list below contains all the available cluster-level configuration properties for Tiered Storage. Edit them with the `rpk cluster config edit` command.
 
