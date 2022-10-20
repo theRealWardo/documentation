@@ -157,28 +157,31 @@ rpk topic alter-config <topic_name> --set redpanda.remote.read=true --set redpan
 
 ### Set retention limits
 
-To maximize cloud storage, Redpanda supports retention limits and compaction. Set retention limits to purge topic data after it reaches a specified age or size, or to purge data from local disks when they become full.
+To maximize cloud storage, Redpanda supports retention limits and compaction. Set retention limits to purge topic data after it reaches a specified age or size.
 
-- Total retention: This is the data in a partition that is retained and available to read by the client. It's the combination of the data in cloud storage plus the data in local storage, minus any overlap. Native Kafka retention controls apply to cloud storage. Cloud data is deleted when it expires or when topics are deleted. 
+Starting in Redpanda release 22.3, retention properties for Tiered Storage topics work the same as for local storage. Data is retained in the cloud until it reaches the configured time or size limit. The size limit applies to the total size of the topic whether the data is stored on disk or in the cloud.
   
-  With Tiered Storage enabled, data expires from cloud storage following `retention.ms` or
-`retention.bytes`. For example, if `retention.bytes` is set to 10GiB, then every partition in the topic has a limit of 10GiB storage in the cloud. When `retention.bytes` is exceeded by data in S3, the data in S3 is trimmed. For details about `retention.ms` and `retention.bytes`, see [Configure message retention](../../deployment/disk-utilization/#configure-message-retention).
+Data expires from cloud storage following `retention.ms` or `retention.bytes`. For example, if `retention.bytes` is set to 10GiB, then every partition in the topic has a limit of 10GiB storage in the cloud. When `retention.bytes` is exceeded by data in S3, the data in S3 is trimmed. 
 
-- Local retention: This is the data retained on local storage in the Redpanda data directory. It does not include data in the Tiered Storage cache. Data in local storage may also be in cloud storage, but it isn't trimmed from local disk until the local retention limit is reached. 
+For details, see [Configure message retention](../../deployment/disk-utilization/#configure-message-retention).
+
+#### Manage local capacity for Tiered Storage topics 
+
+Set topic-level properties to tune your local storage. Settings can depend on the size of your drive, how many partitions you have, and how much data you keep for each partition. 
   
-  With Tiered Storage enabled, data expires from local storage following `redpanda.local-target.ms` or `redpanda.local-target.bytes`. These are topic-level properties. If `redpanda.local-target.bytes` is set to 10GiB, the partition has 10GiB/number_of_partitions. (These are equivalent to `retention.ms` and `retention.bytes` without Tiered Storage.) When set, Redpanda keeps recently-used and sequential (next segment) data in local cache and targets to maintain this age of data in local storage. It purges data based on actual available local volume space, without forcing disk full situations when there is data skew. 
-  
-  A topic does not have guaranteed local storage. You can specify hints to stash a range of data in local storage. 
+With Tiered Storage enabled, data expires from local storage following `redpanda.local-target.ms` or `redpanda.local-target.bytes`. For example, if `redpanda.local-target.bytes` is set to 10GiB, then the partition has 10GiB/number_of_partitions. (These are equivalent to `retention.ms` and `retention.bytes` without Tiered Storage.) 
+
+When set, Redpanda keeps recently-used and sequential (next segment) data in local cache and targets to maintain this age of data in local storage. It purges data based on actual available local volume space, without forcing disk full situations when there is data skew. A topic does not have guaranteed local storage, but you can specify hints to stash a range of data in local storage. 
 
 On topic creation with Tiered Storage enabled:
 - If `retention.ms` or `retention.bytes` is set, it initializes the `remote_retention_` properties in `topic_properties`.
-- If `redpanda.local-target.ms` or `redpanda.local-target.bytes` is set, it is normalized and used to initialize the retention fields in `topic_properties`. Otherwise, Redpanda uses the default values for local retention parameters.
+- If `redpanda.local-target.ms` or `redpanda.local-target.bytes` is set, it is normalized and used to initialize the retention fields in `topic_properties`. 
 - If properties are not specified, Redpanda uses the default values (infinite retention). 
 
 After topic configuration, if Tiered Storage was disabled and must be enabled, or was enabled and must be disabled, Redpanda uses the local retention properties from the `topic_properties`.
 
 :::note
-Existing topics have historical settings preserved on upgrade.
+During upgrade, Redpanda preserves retention settings for existing topics. 
 :::
 
 #### Compacted topics in Tiered Storage
