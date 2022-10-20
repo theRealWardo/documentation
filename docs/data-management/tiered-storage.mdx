@@ -181,7 +181,7 @@ After topic configuration, if Tiered Storage was disabled and must be enabled, o
 Existing topics have historical settings preserved on upgrade.
 :::
 
-#### Compacted topics in Tiered Storage.
+#### Compacted topics in Tiered Storage
 
 Redpanda checks the size of all segments available for fetching after every upload. If the size exceeds the limit, it tries to re-upload compacted segments. During retention, before deleting data, if data can be shrinked, Redpanda re-uploads compacted segments. 
 
