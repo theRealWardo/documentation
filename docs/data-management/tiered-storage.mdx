@@ -157,9 +157,9 @@ rpk topic alter-config <topic_name> --set redpanda.remote.read=true --set redpan
 
 ### Set retention limits
 
-To maximize cloud storage, Redpanda supports retention limits and compaction. Set retention limits to purge topic data after it reaches a specified age or size.
+To reduce cloud storage costs, Redpanda supports retention limits and compaction. Set retention limits to purge topic data after it reaches a specified age or size.
 
-Starting in Redpanda release 22.3, retention properties for Tiered Storage topics work the same as for local storage. Data is retained in the cloud until it reaches the configured time or size limit. The size limit applies to the total size of the topic whether the data is stored on disk or in the cloud.
+Starting in Redpanda release 22.3, dloud storage is the default platform for all streaming data, and retention properties work the same for Tiered Storage topics and local storage topics. Data is retained in the cloud until it reaches the configured time or size limit. The size limit applies to the total size of the topic whether the data is stored on disk or in the cloud.
   
 Data expires from cloud storage following `retention.ms` or `retention.bytes`. For example, if `retention.bytes` is set to 10GiB, then every partition in the topic has a limit of 10GiB storage in the cloud. When `retention.bytes` is exceeded by data in S3, the data in S3 is trimmed. 
 
@@ -173,7 +173,7 @@ With Tiered Storage enabled, data expires from local storage following `redpanda
 
 When set, Redpanda keeps recently-used and sequential (next segment) data in local cache and targets to maintain this age of data in local storage. It purges data based on actual available local volume space, without forcing disk full situations when there is data skew. A topic does not have guaranteed local storage, but you can specify hints to stash a range of data in local storage. 
 
-On topic creation with Tiered Storage enabled:
+At topic creation with Tiered Storage enabled:
 - If `retention.ms` or `retention.bytes` is set, it initializes the `remote_retention_` properties in `topic_properties`.
 - If `redpanda.local-target.ms` or `redpanda.local-target.bytes` is set, it is normalized and used to initialize the retention fields in `topic_properties`. 
 - If properties are not specified, Redpanda uses the default values (infinite retention). 
