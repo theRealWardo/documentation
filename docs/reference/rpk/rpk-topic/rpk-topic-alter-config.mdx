@@ -7,10 +7,7 @@ title: rpk topic alter-config
   <meta name="description" content="rpk topic alter-config" />
 </head>
 
-Set, delete, add, and remove key/value configurations for a topic. For example, you can change the replication factor on an existing topic with `--set replication.factor`. When changing the replication factor on existing partitions, the topic remembers the replication factor, so new partitions created in the topic have the new replication factor.
-
-This command lets you incrementally alter the configuration for multiple
-topics at the same time.
+Set, delete, add, and remove key/value configurations for a topic. This command lets you incrementally alter the configuration for multiple topics at the same time.
 
 Incremental altering supports the following operations:
 
@@ -19,13 +16,19 @@ Incremental altering supports the following operations:
 - Appending a new value to a list-of-values key
 - Subtracting (removing) an existing value from a list-of-values key
 
-The `--dry` option validates the requested configuration change, but it does not apply it.
-
 ### Usage
 
 ```
 rpk topic alter-config [TOPICS...] --set key=value --delete key2,key3 [flags]
 ```
+
+For example, to change the replication factor on an existing topic: 
+
+```
+rpk topic alter-config [TOPICS...] --set replication.factor
+```
+
+When changing the replication factor on existing partitions, the topic remembers the replication factor, so new partitions created in the topic have the new replication factor.
 
 ### Flags
 
@@ -55,7 +58,7 @@ rpk topic alter-config [TOPICS...] --set key=value --delete key2,key3 [flags]
     <tr>
       <td>--dry</td>
       <td>-</td>
-      <td> Dry run<br/><br/>Validates the alter request, but it does not apply it.</td>
+      <td> Dry run<br/><br/>Validates the requested configuration change, but it does not apply it.</td>
     </tr>
     <tr>
       <td>-h, --help</td>
