@@ -7,14 +7,12 @@ title: rpk topic alter-config
   <meta name="description" content="rpk topic alter-config" />
 </head>
 
-Set, delete, add, and remove key/value configurations for a topic. This command lets you incrementally alter the configuration for multiple topics at the same time.
+Set, delete, add, and remove key/value configurations for a topic. This command lets you incrementally alter the configuration for multiple topics at the same time. Incremental altering supports the following operations:
 
-Incremental altering supports the following operations:
-
-- Setting a key=value pair
-- Deleting a key's value
-- Appending a new value to a list-of-values key
-- Subtracting (removing) an existing value from a list-of-values key
+- Set a key=value pair
+- Delete a key's value
+- Append a new value to a list-of-values key
+- Remove an existing value from a list-of-values key
 
 ### Usage
 
@@ -28,7 +26,7 @@ For example, to change the replication factor on an existing topic:
 rpk topic alter-config [TOPICS...] --set replication.factor
 ```
 
-When changing the replication factor on existing partitions, the topic remembers the replication factor, so new partitions created in the topic have the new replication factor.
+The updated replication factor also applies to new partitions created in the topic.
 
 ### Flags 
 
@@ -48,7 +46,7 @@ When changing the replication factor on existing partitions, the topic remembers
     <tr>
       <td>--append</td>
       <td>stringArray</td>
-      <td> key=value<br/><br/>Value to append to a list-of-values key (repeatable).</td>
+      <td> key=value<br/><br/>Value to add to a list-of-values key (repeatable).</td>
     </tr>
     <tr>
       <td>-d, --delete</td>
@@ -79,11 +77,10 @@ When changing the replication factor on existing partitions, the topic remembers
       <td>--brokers</td>
       <td>strings</td>
       <td>
-        Comma-separated list of broker &lt;ip&gt;:&lt;port&gt; pairs (for example,
+        Comma-separated list of broker &lt;ip&gt;:&lt;port&gt; pairs. For example,
         <code>
           --brokers '192.168.78.34:9092,192.168.78.35:9092,192.179.23.54:9092'
-        </code>
-        ).<br/><br/>Alternatively, you can set the <code>REDPANDA_BROKERS</code>
+        </code>.<br/><br/>Alternatively, you can set the <code>REDPANDA_BROKERS</code>
         environment variable with the comma-separated list of broker addresses.
       </td>
     </tr>
@@ -119,7 +116,7 @@ When changing the replication factor on existing partitions, the topic remembers
       <td>--tls-enabled</td>
       <td>-</td>
       <td>
-        Enable TLS for the Kafka API (not necessary if specifying custom certificates).
+        Enable TLS for the Kafka API. (Not necessary if specifying custom certificates.)
       </td>
     </tr>
     <tr>
@@ -143,7 +140,7 @@ When changing the replication factor on existing partitions, the topic remembers
       <td>-v, --verbose</td>
       <td>-</td>
       <td>
-        Enable verbose logging. Default = <code>false</code>).
+        Enable verbose logging. Default = <code>false</code>.
       </td>
     </tr>
   </tbody>
