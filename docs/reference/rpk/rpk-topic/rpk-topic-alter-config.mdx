@@ -7,7 +7,7 @@ title: rpk topic alter-config
   <meta name="description" content="rpk topic alter-config" />
 </head>
 
-Set, delete, add, and remove key/value configurations for a topic.
+Set, delete, add, and remove key/value configurations for a topic. For example, you can change the replication factor on an existing topic with `--set replication.factor`. When changing the replication factor on existing partitions, the topic remembers the replication factor, so new partitions created in the topic have the new replication factor.
 
 This command lets you incrementally alter the configuration for multiple
 topics at the same time.
@@ -65,7 +65,7 @@ rpk topic alter-config [TOPICS...] --set key=value --delete key2,key3 [flags]
     <tr>
       <td>-s, --set</td>
       <td>stringArray</td>
-      <td> key=value<br/><br/>Pair to set (repeatable).</td>
+      <td> key=value<br/><br/>Pair to set (repeatable). For example, change the replication factor on an existing topic with <code>--set replication.factor</code></td>
     </tr>
     <tr>
       <td>--subtract</td>
