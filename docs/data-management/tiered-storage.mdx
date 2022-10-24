@@ -78,16 +78,14 @@ cloud_storage_region: eu-north-1
 cloud_storage_secret_key: ***
 ```
 
-For additional properties, see [Configuration properties](../tiered-storage#configuration-properties). 
+For additional properties, see [Tiered Storage configuration properties](../tiered-storage#tiered-storage-configuration-properties). 
 
   </TabItem>
     </Tabs>
 
 ### Enable Tiered Storage for a cluster
 
-:::note
 You can enable Tiered Storage for a cluster or a topic. Topic-level tags override cluster-level settings. For example, if you have Tiered Storage enabled on the cluster and you create a topic with Tiered Storage turned off, it is also turned off for that topic.
-:::
 
 To enable Tiered Storage on a cluster, set the following cluster-level properties with the `rpk cluster config edit` command:
 
@@ -159,7 +157,7 @@ rpk topic alter-config <topic_name> --set redpanda.remote.read=true --set redpan
 
 To reduce cloud storage costs, Redpanda supports retention limits and compaction. Set retention limits to purge topic data after it reaches a specified age or size.
 
-Starting in Redpanda release 22.3, dloud storage is the default platform for all streaming data, and retention properties work the same for Tiered Storage topics and local storage topics. Data is retained in the cloud until it reaches the configured time or size limit. The size limit applies to the total size of the topic whether the data is stored on disk or in the cloud.
+Starting in Redpanda release 22.3, cloud storage is the default platform for all streaming data, and retention properties work the same for Tiered Storage topics and local storage topics. Data is retained in the cloud until it reaches the configured time or size limit. The size limit applies to the total size of the topic whether the data is stored on disk or in the cloud.
   
 Data expires from cloud storage following `retention.ms` or `retention.bytes`. For example, if `retention.bytes` is set to 10GiB, then every partition in the topic has a limit of 10GiB storage in the cloud. When `retention.bytes` is exceeded by data in S3, the data in S3 is trimmed. 
 
@@ -186,9 +184,7 @@ During upgrade, Redpanda preserves retention settings for existing topics.
 
 #### Compacted topics in Tiered Storage
 
-Redpanda checks the size of all segments available for fetching after every upload. If the size exceeds the limit, it tries to re-upload compacted segments. During retention, before deleting data, if data can be shrinked, Redpanda re-uploads compacted segments. 
-
-Replacing non-compacted segments with compacted segments saves space and minimizes the time needed to consume the entire topic. Redpanda prevents compaction from processing any segments below `max_collectable_offset`. 
+To save space, Redpanda compacts segments after they have been uploaded to cloud storage. Redpanda initially uploads all (non-compacted) segments. It then reuploads the segments with compaction applied.
 
 ## Remote write
 
@@ -232,7 +228,7 @@ The reconciliation process is configured with the following property. Edit the p
 
 | Property      | Description |
 | ----------- | ----------- |
-| `cloud_storage_reconciliation_interval_ms` | Sets the interval, in milliseconds, used to reconcile partitions that need to be uploaded. A long reconciliation interval can result in a delayed reaction to topic creation, topic deletion, or leadership rebalancing events. A short reconciliation interval guarantees that new partitions are picked up quickly, but the process uses more resources. Default is 10000 ms. |
+| `cloud_storage_reconciliation_interval_ms` | Sets the interval, in milliseconds, used to reconcile partitions that need to be uploaded. A long reconciliation interval can result in a delayed reaction to topic creation, topic deletion, or leadership rebalancing events. A short reconciliation interval guarantees that new partitions are picked up quickly, but the process uses more resources. Default is 1 s. |
 
 ### Upload controller
 
