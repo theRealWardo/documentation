@@ -76,7 +76,7 @@ const MyModal = (props) => {
               </div>
               <div className={styles.modalFooter}>
                 {!feedbackSubmited &&
-                <button onClick={() => {setfeedbackSubmited(true); setTimeout(props.onClose,30000)}} className={clsx("button", styles.submitButton)} disabled={!disableButton}>Submit</button>
+                <button type= "submit" onClick={() => {setfeedbackSubmited(true); setTimeout(props.onClose,30000)}} className={clsx("button", styles.submitButton)} disabled={!disableButton}>Submit</button>
                 }
                 <button onClick={props.onClose}  className={clsx("button", styles.closeButton)}>Close</button>
               </div>
