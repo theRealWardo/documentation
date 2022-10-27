@@ -50,7 +50,7 @@ const MyModal = (props) => {
                 <h4>{title}</h4>
               </div>
               <div className={styles.modalBody}>
-                <form>
+                <form data-netlify="true">
                   <div className={styles.radioButtons}>
                     <input type="radio" name="thumb-up" id="easyToUnderstand" onChange={() => {setOther(false); setDisableButton(true);}} />
                     <label className={styles.labelMargin}>{easyRadio}</label> <br />
