@@ -46,40 +46,17 @@ const MyModal = (props) => {
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         {!feedbackSubmited ? (
           <div>
-              <form data-netlify="true" netlify name="submissionForm" method="post">
-              <div className={styles.modalHeader}>
-                <h4>{title}</h4>
-              </div>
-              <div className={styles.modalBody}>
-                  <div className={styles.radioButtons}>
-                    <input type="radio" name="thumb-up" id="easyToUnderstand" onChange={() => {setOther(false); setDisableButton(true);}} />
-                    <label className={styles.labelMargin}>{easyRadio}</label> <br />
-                    <input type="radio" name="thumb-up" id="solvedProblem" onChange={() => {setOther(false); setDisableButton(true);}}/>
-                    <label className={styles.labelMargin}>{solvedRadio}</label><br />
-                    <input type="radio" name="thumb-up" id="other" onChange={() => {setOther(true); setDisableButton(true);}} />
-                    <label className={styles.labelMargin}>{otherRadio}</label><br/>
-                  </div>
-                  <div className={styles.boxSizing}>
-                    If we can contact you with more questions, please enter your
-                    email address:
-                  </div>
-                  <input type="text" name="email" id="email" placeholder="email@example.com" className={styles.moreQuestions}/><br />
-                  {other && (
-                    <div>
-                      <div className={styles.boxSizing + " " + styles.padding}>
-                        {whatWeDo}
-                      </div>
-                      <textarea id="otherText"  name="otherText"  rows="4"  cols="50"  placeholder="Please describe in more details your feedback."></textarea>
-                    </div>
-                  )}
-              </div>
-              <div className={styles.modalFooter}>
-                {!feedbackSubmited &&
-                <button type= "submit" onClick={() => {setfeedbackSubmited(true); setTimeout(props.onClose,30000)}} className={clsx("button", styles.submitButton)} disabled={!disableButton}>Submit</button>
-              }
-                <button type ="button" onClick={props.onClose}  className={clsx("button", styles.closeButton)}>Close</button>
-              </div>
-              </form>
+              <form name="contact" netlify>
+  <p>
+    <label>Name <input type="text" name="name" /></label>
+  </p>
+  <p>
+    <label>Email <input type="email" name="email" /></label>
+  </p>
+  <p>
+    <button type="submit">Send</button>
+  </p>
+</form>
             </div>): 
             
             (<div className={styles.modalBody}>
