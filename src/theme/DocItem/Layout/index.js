@@ -47,38 +47,44 @@ const MyModal = (props) => {
         {!feedbackSubmited ? (
           <div>
               <form data-netlify="true" netlify name="submissionForm" method="post">
-              <div className={styles.modalHeader}>
-                <h4>{title}</h4>
-              </div>
-              <div className={styles.modalBody}>
-                  <div className={styles.radioButtons}>
-                    <input type="radio" name="thumb-up" id="easyToUnderstand" onChange={() => {setOther(false); setDisableButton(true);}} />
-                    <label className={styles.labelMargin}>{easyRadio}</label> <br />
-                    <input type="radio" name="thumb-up" id="solvedProblem" onChange={() => {setOther(false); setDisableButton(true);}}/>
-                    <label className={styles.labelMargin}>{solvedRadio}</label><br />
-                    <input type="radio" name="thumb-up" id="other" onChange={() => {setOther(true); setDisableButton(true);}} />
-                    <label className={styles.labelMargin}>{otherRadio}</label><br/>
-                  </div>
-                  <div className={styles.boxSizing}>
-                    If we can contact you with more questions, please enter your
-                    email address:
-                  </div>
-                  <input type="text" name="email" id="email" placeholder="email@example.com" className={styles.moreQuestions}/><br />
-                  {other && (
-                    <div>
-                      <div className={styles.boxSizing + " " + styles.padding}>
-                        {whatWeDo}
-                      </div>
-                      <textarea id="otherText"  name="otherText"  rows="4"  cols="50"  placeholder="Please describe in more details your feedback."></textarea>
+                <div className={styles.modalHeader}>
+                  <h4>{title}</h4>
+                </div>
+                <div className={styles.modalBody}>
+                    <div className={styles.radioButtons}>
+                      <label>
+                        <input type="radio" name="feedbackOptions" id="easyToUnderstand" value onChange={() => {setOther(false); setDisableButton(true);}} />
+                        <span className={styles.labelMargin} >{easyRadio}</span>
+                      </label> <br />
+                      <label>
+                        <input type="radio" name="feedbackOptions" id="solvedProblem" onChange={() => {setOther(false); setDisableButton(true);}}/>
+                        <span className={styles.labelMargin}>{solvedRadio}</span>
+                      </label><br />
+                      <label>
+                        <input type="radio" name="feedbackOptions" id="other" onChange={() => {setOther(true); setDisableButton(true);}} />
+                        <span className={styles.labelMargin}>{otherRadio}</span>
+                      </label><br/>
                     </div>
-                  )}
-              </div>
-              <div className={styles.modalFooter}>
-                {!feedbackSubmited &&
-                <button type= "submit" onClick={() => {setfeedbackSubmited(true); setTimeout(props.onClose,30000)}} className={clsx("button", styles.submitButton)} disabled={!disableButton}>Submit</button>
-              }
-                <button type ="button" onClick={props.onClose}  className={clsx("button", styles.closeButton)}>Close</button>
-              </div>
+                    <div className={styles.boxSizing}>
+                      If we can contact you with more questions, please enter your
+                      email address:
+                    </div>
+                    <input type="text" name="email" id="email" placeholder="email@example.com" className={styles.moreQuestions}/><br />
+                    {other && (
+                      <div>
+                        <div className={styles.boxSizing + " " + styles.padding}>
+                          {whatWeDo}
+                        </div>
+                        <textarea id="otherText"  name="otherText"  rows="4"  cols="50"  placeholder="Please describe in more details your feedback."></textarea>
+                      </div>
+                    )}
+                </div>
+                <div className={styles.modalFooter}>
+                  {!feedbackSubmited &&
+                  <button type= "submit" onClick={() => {setfeedbackSubmited(true); setTimeout(props.onClose,30000)}} className={clsx("button", styles.submitButton)} disabled={!disableButton}>Submit</button>
+                }
+                  <button type ="button" onClick={props.onClose}  className={clsx("button", styles.closeButton)}>Close</button>
+                </div>
               </form>
             </div>): 
             
