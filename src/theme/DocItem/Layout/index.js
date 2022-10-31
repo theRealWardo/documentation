@@ -42,6 +42,7 @@ const MyModal = (props) => {
   }
 
   return (
+    <form data-netlify="true" netlify name="submissionForm" >
       <div className={styles.modal} onClick={props.onClose}>
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         {!feedbackSubmited ? (
@@ -52,20 +53,18 @@ const MyModal = (props) => {
                 </div>
                 <div className={styles.modalBody}>
                     <div className={styles.radioButtons}>
-                    <form data-netlify="true" netlify name="submissionForm" method="post">
                       <label>
-                        <input type="radio" name="feedbackOptions" id="easyToUnderstand" value onChange={() => {setOther(false); setDisableButton(true);}} />
+                        <input type="radio" name="feedbackOptions" id="easyToUnderstand" value="understand" onChange={() => {setOther(false); setDisableButton(true);}} />
                         <span className={styles.labelMargin} >{easyRadio}</span>
                       </label> <br />
                       <label>
-                        <input type="radio" name="feedbackOptions" id="solvedProblem" onChange={() => {setOther(false); setDisableButton(true);}}/>
+                        <input type="radio" name="feedbackOptions" id="solvedProblem" value="solved"onChange={() => {setOther(false); setDisableButton(true);}}/>
                         <span className={styles.labelMargin}>{solvedRadio}</span>
                       </label><br />
                       <label>
-                        <input type="radio" name="feedbackOptions" id="other" onChange={() => {setOther(true); setDisableButton(true);}} />
+                        <input type="radio" name="feedbackOptions" id="other" value="other" onChange={() => {setOther(true); setDisableButton(true);}} />
                         <span className={styles.labelMargin}>{otherRadio}</span>
                       </label><br/>
-                      </form>
                     </div>
                     <div className={styles.boxSizing}>
                       If we can contact you with more questions, please enter your
@@ -83,7 +82,7 @@ const MyModal = (props) => {
                 </div>
                 <div className={styles.modalFooter}>
                   {!feedbackSubmited &&
-                  <button type= "submit" onClick={() => {setfeedbackSubmited(true); setTimeout(props.onClose,30000)}} className={clsx("button", styles.submitButton)} disabled={!disableButton}>Submit</button>
+                  <button type= "submit" onSubmit={() => {setfeedbackSubmited(true); setTimeout(props.onClose,30000)}} className={clsx("button", styles.submitButton)} disabled={!disableButton}>Submit</button>
                 }
                   <button type ="button" onClick={props.onClose}  className={clsx("button", styles.closeButton)}>Close</button>
                 </div>
@@ -104,6 +103,7 @@ const MyModal = (props) => {
           </div>
           
       </div>
+      </form>
   );
 };
 
