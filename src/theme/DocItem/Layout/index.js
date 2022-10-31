@@ -169,6 +169,9 @@ export default function DocItemLayout({ children }) {
                     </div>
                   </div>
                   <div className="col">
+                    <a href="https://redpanda.com/slack" alt="Slack Community"><Icon className={styles.mailIcon}>group</Icon> Ask in the community</a>
+                  </div>
+                  <div className="col">
                     <a
                       href={
                         "mailto:rp-docs-feedback@redpanda.com?subject=Documentation Feedback&body=Doc url: " +
