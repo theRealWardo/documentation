@@ -34,9 +34,9 @@ const MyModal = (props) => {
     whatWeDo = "Let us know what we do well:";
   }
   else{
-    title = "What you do NOT like about this doc?";
+    title = "What did you not like about this doc?";
     easyRadio = "Hard to understand";
-    solvedRadio = "Did NOT solved my problem";
+    solvedRadio = "Did not solve my problem";
     whatWeDo = "Let us know what we can improve:";
     
   }
