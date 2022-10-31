@@ -145,7 +145,7 @@ export default function DocItemLayout({ children }) {
                   <div>
                     
                   </div>
-                  <div className={clsx("col", styles.feedBackSection)}>
+                  <div className={clsx("col", styles.feedBackSection + " " + styles.mailIcon)}>
                     <div>Was this page helpful ?</div>
 
                     <div>
