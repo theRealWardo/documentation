@@ -91,7 +91,7 @@ With this command, MirrorMaker consumes all topics from the redpanda1 cluster an
 MirrorMaker adds the prefix `redpanda1` to the names of replicated topics.
 
 :::note
-- MirrorMaker uses the `__consumer_offsets` topic to replicate consumer offsets between clusters. This is currently not supported in Redpanda, but you can follow the progress of this issue at: https://github.com/redpanda-data/redpanda/issues/1752.
+- MirrorMaker uses the `__consumer_offsets` topic to replicate consumer offsets between clusters. This is not supported in Redpanda (you can follow the progress of this issue at: https://github.com/redpanda-data/redpanda/issues/1752).
 :::
 
 ## Change topic replication factor
