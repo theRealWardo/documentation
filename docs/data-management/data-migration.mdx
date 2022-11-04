@@ -43,7 +43,7 @@ To install MirrorMaker 2 on the machine that you want to run the replication bet
     tar -xvf kafka_2.13-3.0.0.tgz
     ```
 
-## Create the MirrorMaker 2 config files
+## Create the MirrorMaker 2 configuration files
 
 MirrorMaker uses configuration files to get the connection details for the clusters.
 You can find the MirrorMaker script and configuration files in the expanded Kafka directory.
@@ -96,10 +96,12 @@ MirrorMaker adds the prefix `redpanda1` to the names of replicated topics.
 
 ## Change topic replication factor
 
-If you need to increase or decrease the replication factor on an existing topic, run: 
+The replication factor is a topic property set at topic creation. A replication factor of three generally provides a good balance between broker loss and replication overhead.
+
+You can increase or decrease the replication factor on an existing topic. For example, if topics were initially created in a test environment with a replication factor of `1`, to change the topic replication factor to `3`, run: 
 
 ```
-rpk topic alter-config [TOPICS...] --set replication.factor
+rpk topic alter-config [TOPICS...] --set replication.factor 3
 ```
 
 ## See migration in action
