@@ -14,7 +14,7 @@ import TabItem from '@theme/TabItem';
 This feature requires an [Enterprise license](../../introduction/licenses). To upgrade, contact [Redpanda sales](https://redpanda.com/try-redpanda?section=enterprise-cloud).
 :::
 
-Tiered Storage lets you save storage costs by offloading log segments to cloud storage. You can specify the amount of local storage you want to provision and configure Tiered Storage to move the rest to Amazon S3 or Google Cloud Storage. You don't need to specify which log segments you want to move. Redpanda moves them automatically based on cluster-level configuration properties. Redpanda Tiered Storage works behind the scenes to index where data is offloaded, so it can retrieve the data when you need it.
+Tiered Storage lets you save storage costs by offloading log segments to cloud storage. You can specify the amount of local storage you want to retain in local storage. You don't need to specify which log segments you want to move. Redpanda moves them automatically based on cluster-level configuration properties. Redpanda Tiered Storage works behind the scenes to index where data is offloaded, so it can retrieve the data when you need it.
 
 :::caution
 Do not use Tiered Storage with [data transforms](../../data-management/data-transform), which is in technical preview. Technical preview features are not supported for production usage.
@@ -43,7 +43,7 @@ To create a cloud storage bucket and configure Redpanda:
 
 1. Specify the expiration rules for the files that are based on the `rp-type` file tags. 
 2. Use [IAM roles](../../security/iam-roles) to create a user who can access S3.
-3. Grant the user permission to read and create objects in cloud storage.
+3. Grant the user permission to read and create objects on the bucket to be used with the cluster (or on all buckets).
 4. Copy the access key and secret key for the `cloud_storage_access_key` and `cloud_storage_secret_key` cluster properties.
 5. Edit the the following required properties with the `rpk cluster config edit` command:
 
@@ -85,7 +85,9 @@ For additional properties, see [Tiered Storage configuration properties](../tier
 
 ### Enable Tiered Storage for a cluster
 
-You can enable Tiered Storage for a cluster or a topic. Topic-level tags override cluster-level settings. For example, if you have Tiered Storage enabled on the cluster and you create a topic with Tiered Storage turned off, it is also turned off for that topic.
+You can enable Tiered Storage for a cluster or a topic. 
+
+Topic-level properties override cluster-level properties. For example, if you have Tiered Storage enabled on the cluster and you create a topic with Tiered Storage turned off, it is also turned off for that topic. When cluster-level properties are changed, the changes apply only to new topics, not existing topics.
 
 To enable Tiered Storage on a cluster, set the following cluster-level properties with the `rpk cluster config edit` command:
 
@@ -111,7 +113,7 @@ Tiered Storage also uses the following topic configuration flags:
 In Redpanda Cloud, you must explicitly switch on Tiered Storage for specific topics or globally for the cluster. It is not enabled by default.
 :::
 
-Topic configuration flags override any cluster-level configuration. For example, if `cloud_storage_enable_remote_write` is set to `true`, you can set `redpanda.remote.write` to `false` to turn it off for a particular topic. Or, if you have Tiered Storage turned off for the cluster, you can enable it for individual topics with the topic flags.
+Topic configuration flags override any cluster-level configuration. For example, on new topics, if `cloud_storage_enable_remote_write` is set to `true`, you can set `redpanda.remote.write` to `false` to turn it off for a particular topic. Or, if you have Tiered Storage turned off for the cluster, you can enable it for individual topics with the topic flags. (When cluster-level properties are changed, the changes apply only to new topics, not existing topics.)
 
 The following table lists outcomes for combinations of cluster-level and topic-level configurations: 
 
@@ -137,7 +139,9 @@ The following table lists outcomes for combinations of cluster-level and topic-l
 | <code>false</code> | <code>false</code> | Disabled |
 | <code>false</code> | <code>true</code>  | Enabled  |
 
-Note that the cluster-level `cloud_storage_enabled` property must be set to `true` to enable Tiered Storage at the cluster level or the topic level. If you want to have Tiered Storage turned off at the cluster level and enable it on specific topics, you must enable the `cloud_storage_enabled` property. If this property is set to `false`, nothing is added to cloud storage, regardless of whether or not the other Tiered Storage properties are enabled. If this property is set to `true` and the other Tiered Storage properties are disabled, then the Tiered Storage subsystem is initialized, but it is not used until you enable Tiered Storage for a topic or at the cluster level.
+The cluster-level `cloud_storage_enabled` property must be set to `true` to enable Tiered Storage at either the cluster level or the topic level. To disable Tiered Storage at the cluster level and enable it on specific topics, `cloud_storage_enabled` must be set to `true`. 
+- If this property is set to `false`, nothing is added to cloud storage, regardless of whether or not the other Tiered Storage properties are enabled. 
+- If this property is set to `true` and the other Tiered Storage properties are disabled, then the Tiered Storage subsystem is initialized, but it is not used until you enable Tiered Storage for a topic or at the cluster level.
 
 To enable Tiered Storage on a topic, set the `redpanda.remote.write` and `redpanda.remote.read` flags on a new or existing topic. 
 
@@ -155,9 +159,9 @@ rpk topic alter-config <topic_name> --set redpanda.remote.read=true --set redpan
 
 ### Set retention limits
 
-To reduce cloud storage costs, Redpanda supports retention limits and compaction. Set retention limits to purge topic data after it reaches a specified age or size.
+Redpanda supports retention limits and compaction for topics using Tiered Storage. Set retention limits to purge topic data after it reaches a specified age or size.
 
-Starting in Redpanda release 22.3, cloud storage is the default platform for all streaming data, and retention properties work the same for Tiered Storage topics and local storage topics. Data is retained in the cloud until it reaches the configured time or size limit. The size limit applies to the total size of the topic whether the data is stored on disk or in the cloud.
+Starting in Redpanda release 22.3, cloud storage is the default storage tier for all streaming data, and retention properties work the same for Tiered Storage topics and local storage topics. Data is retained in the cloud until it reaches the configured time or size limit. Retention limits apply to data stored in cloud storage, even though additional data may be cached or managed in local storage.
   
 Data expires from cloud storage following `retention.ms` or `retention.bytes`. For example, if `retention.bytes` is set to 10GiB, then every partition in the topic has a limit of 10GiB storage in the cloud. When `retention.bytes` is exceeded by data in S3, the data in S3 is trimmed. If neither `retention.ms` nor `retention.bytes` are specified, then cluster level defaults are used. 
 
@@ -169,7 +173,7 @@ During upgrade, Redpanda preserves retention settings for existing topics.
 
 #### Manage local capacity for Tiered Storage topics 
 
-Set topic-level properties to tune your local storage. Settings can depend on the size of your drive, how many partitions you have, and how much data you keep for each partition. 
+Set topic-level properties to control retention of topic data in local storage. Settings can depend on the size of your drive, how many partitions you have, and how much data you keep for each partition. 
   
 With Tiered Storage enabled, data expires from local storage following `redpanda.local-target.ms` or `redpanda.local-target.bytes`. For example, if `redpanda.local-target.bytes` is set to 10GiB, then the partition has 10GiB/number_of_partitions. (These are equivalent to `retention.ms` and `retention.bytes` without Tiered Storage.) 
 
@@ -178,7 +182,9 @@ When set, Redpanda keeps recently-used and sequential (next segment) data in loc
 At topic creation with Tiered Storage enabled:
 - If `retention.ms` or `retention.bytes` is set, it initializes the `remote_retention_` properties in `topic_properties`.
 - If `redpanda.local-target.ms` or `redpanda.local-target.bytes` is set, it is normalized and used to initialize the retention fields in `topic_properties`. 
-- If properties are not specified, Redpanda uses the default values (infinite retention). 
+- If properties are not specified:
+  - New topics starting in release 22.3 use the default retention values of 1 (local) and 7 days (S3).
+  - Upgraded topics retain their historical defaults of infinite retention.
 
 After topic configuration, if Tiered Storage was disabled and must be enabled, or was enabled and must be disabled, Redpanda uses the local retention properties from the `topic_properties`.
 
@@ -208,7 +214,7 @@ rpk topic alter-config <topic_name> --set redpanda.remote.write=true
 
 If remote write is enabled, log segments are not deleted until they’re uploaded to remote storage. Because of this, the log segments may exceed the configured retention period until they’re uploaded, so the topic might require more disk space. This prevents data loss if segments cannot be uploaded fast enough or if the retention period is very short.
 
-If you delete a topic that has been uploaded to cloud storage, the data in cloud storage is not affected. This is useful if a topic is unintentionally deleted. The topic can be recovered with the `redpanda.remote.recovery` topic configuration flag.
+Starting in release 22.3, when you delete a topic in Redpanda, the data is also deleted in cloud storage. Topics created prior to 22.3 can alter their configuration to this behavior on a topic level after upgrading. 
 
 ### Idle timeout
 
@@ -277,9 +283,7 @@ Use the following cluster-level properties to set the maximum cache size and cac
 
 ## Remote recovery 
 
-When you create a topic, you can use remote recovery to download the topic data from cloud storage. Only the data that matches the retention policy of the topic is downloaded. The data that is not downloaded from cloud storage is still accessible through remote read.
-
-You can use remote recovery to restore a topic that was deleted from a cluster. 
+When you create a topic, you can use remote recovery to download the topic data from cloud storage. You can also use remote recovery to restore a topic that was deleted from a cluster. 
 
 To create a new topic using remote recovery: 
 
@@ -306,7 +310,7 @@ Redpanda retries the request if it receives any of the following errors:
 
 For other errors, Redpanda does not retry the request. For example, Redpanda does not retry the request after a `NoSuchKey` error.
 
-You can configure the `cloud_storage_initial_backup_ms` property to set the time, in milliseconds, that is used as an initial backoff interval in the exponential backoff algorithm to handle an error. Edit it with the `rpk cluster config edit` command. Default is 100 ms.
+You can configure the `cloud_storage_initial_backoff_ms` property to set the time, in milliseconds, that is used as an initial backoff interval in the exponential backoff algorithm to handle an error. Edit it with the `rpk cluster config edit` command. Default is 100 ms.
 
 ## Transport 
 
