@@ -110,7 +110,7 @@ Tiered Storage also uses the following topic configuration flags:
 | `redpanda.remote.recovery` | Recovers or reproduces a topic from cloud storage. Use this flag during topic creation. It does not apply to existing topics.  |
 
 :::note
-In Redpanda Cloud, you must explicitly switch on Tiered Storage for specific topics or globally for the cluster. It is not enabled by default.
+In Redpanda Cloud, you must explicitly switch on Tiered Storage for specific topics or globally for the cluster.
 :::
 
 Topic configuration flags override any cluster-level configuration. For example, on new topics, if `cloud_storage_enable_remote_write` is set to `true`, you can set `redpanda.remote.write` to `false` to turn it off for a particular topic. Or, if you have Tiered Storage turned off for the cluster, you can enable it for individual topics with the topic flags. When cluster-level properties are changed, the changes apply only to new topics, not existing topics.
@@ -194,7 +194,7 @@ To save space, Redpanda compacts segments after they have been uploaded to cloud
 
 ## Remote write
 
-Remote write is the process that constantly uploads log segments to cloud storage. The process is created for each partition and runs on the leader node of the partition. It only uploads the segments that contain offsets that are smaller than the last stable offset. This is the largest offset that the client can read. 
+Remote write is the process that constantly uploads log segments to cloud storage. The process is created for each partition and runs on the leader node of the partition. It only uploads the segments that contain offsets that are smaller than the last stable offset. This is the latest offset that the client can read. 
 
 To ensure all data is uploaded, you must enable remote write before any data is produced to the topic. If remote write is not enabled, data may be deleted due to retention settings. 
 
