@@ -173,7 +173,7 @@ During upgrade, Redpanda preserves retention settings for existing topics.
 
 #### Manage local capacity for Tiered Storage topics 
 
-Set topic-level properties to control retention of topic data in local storage. Settings can depend on the size of your drive, how many partitions you have, and how much data you keep for each partition. 
+You can use topic-level properties to control retention of topic data in local storage. Settings can depend on the size of your drive, how many partitions you have, and how much data you keep for each partition. 
   
 With Tiered Storage enabled, data expires from local storage following `redpanda.local-target.ms` or `redpanda.local-target.bytes`. For example, if `redpanda.local-target.bytes` is set to 10GiB, then the partition has 10GiB/number_of_partitions. (These are equivalent to `retention.ms` and `retention.bytes` without Tiered Storage.) 
 
