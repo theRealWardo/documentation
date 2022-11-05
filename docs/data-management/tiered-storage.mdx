@@ -113,7 +113,7 @@ Tiered Storage also uses the following topic configuration flags:
 In Redpanda Cloud, you must explicitly switch on Tiered Storage for specific topics or globally for the cluster. It is not enabled by default.
 :::
 
-Topic configuration flags override any cluster-level configuration. For example, on new topics, if `cloud_storage_enable_remote_write` is set to `true`, you can set `redpanda.remote.write` to `false` to turn it off for a particular topic. Or, if you have Tiered Storage turned off for the cluster, you can enable it for individual topics with the topic flags. (When cluster-level properties are changed, the changes apply only to new topics, not existing topics.)
+Topic configuration flags override any cluster-level configuration. For example, on new topics, if `cloud_storage_enable_remote_write` is set to `true`, you can set `redpanda.remote.write` to `false` to turn it off for a particular topic. Or, if you have Tiered Storage turned off for the cluster, you can enable it for individual topics with the topic flags. When cluster-level properties are changed, the changes apply only to new topics, not existing topics.
 
 The following table lists outcomes for combinations of cluster-level and topic-level configurations: 
 
