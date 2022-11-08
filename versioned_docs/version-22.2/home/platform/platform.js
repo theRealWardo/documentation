@@ -5,7 +5,7 @@ import styles from './platform.module.css';
 const FeatureList = [
   {
     title: '60-Second Guides',
-    image: require('../../../static/img/quickstart.png').default,
+    image: require('../../../../static/img/quickstart.png').default,
     description: (
       <>
         Try out Redpanda.
@@ -15,7 +15,7 @@ const FeatureList = [
   },
   {
     title: 'Deploying for Production',
-    image: require('../../../static/img/deployment.png').default,
+    image: require('../../../../static/img/deployment.png').default,
     description: (
       <>
         Install and configure Redpanda.
@@ -25,7 +25,7 @@ const FeatureList = [
   },
   {
     title: 'Redpanda Console',
-    image: require('../../../static/img/console-docs.png').default,
+    image: require('../../../../static/img/console-docs.png').default,
     description: (
       <>
         Use the Redpanda Console dashboard to administer clusters and get visibility into your data streams.
@@ -35,7 +35,7 @@ const FeatureList = [
   },
   {
     title: 'rpk Command Reference',
-    image: require('../../../static/img/RPK-commands.png').default,
+    image: require('../../../../static/img/RPK-commands.png').default,
     description: (
       <>
         Browse all commands for running Redpanda.
@@ -45,7 +45,7 @@ const FeatureList = [
   },
   {
     title: 'Tiered Storage',
-    image: require('../../../static/img/try-now.png').default,
+    image: require('../../../../static/img/try-now.png').default,
     description: (
       <>
         Save storage costs by offloading log segments to the cloud.
@@ -55,7 +55,7 @@ const FeatureList = [
   },
   {
     title: 'Sizing Guidelines',
-    image: require('../../../static/img/get-started.png').default,
+    image: require('../../../../static/img/get-started.png').default,
     description: (
       <>
         Size your production clusters to maximize performance.

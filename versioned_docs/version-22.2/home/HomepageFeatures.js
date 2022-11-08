@@ -4,12 +4,12 @@ import styles from './HomepageFeatures.module.css';
 const FeatureList = [
   {
     title: 'Redpanda Platform',
-    image: require('../../static/img/panda.png').default,
+    image: require('../../../static/img/panda.png').default,
     url: '/docs/home/platform',
   },
   {
     title: 'Redpanda Cloud',
-    image: require('../../static/img/cloud.png').default,
+    image: require('../../../static/img/cloud.png').default,
     url: '/docs/home/cloud',
   },
 ];
