@@ -32,7 +32,9 @@ If you are using Amazon Web Services (AWS) as your cloud provider, you must sati
 
 #### Sample "Full Access" IAM policy
 
-The following example policy grants all permissions associated with an S3 bucket, and full access to all resources. This particular example also includes all permissions associated with `s3-object-lambda`, which you can use to perform operations on the data in the S3 bucket. A full access policy with all S3 permissions is required for Tiered Storage.
+Tiered Storage with AWS requires that the user have the following permissions to read and create objects on the bucket to be used with the cluster (or on all buckets): `GetObject`, `DeleteObject`, `PutObject`. 
+
+The following example policy grants all permissions associated with an S3 bucket, and full access to all resources. This particular example also includes all permissions associated with `s3-object-lambda`, which you can use to perform operations on the data in the S3 bucket. 
 
 ```
 # AmazonS3FullAccess
@@ -83,7 +85,7 @@ If you are using Google Cloud Platform as your cloud provider, you must satisfy 
 
 :::note
 
-A full access policy with all storage bucket permissions is required for Tiered Storage.
+A full access policy with all storage bucket permissions is required for Tiered Storage. 
 
 :::
 
